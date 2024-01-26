@@ -5,7 +5,7 @@
 	},
 	"project": {
 		"name": "Roomba",
-		"description": "",
+		"description": "Roomba Simulator",
 		"creationDate": "1/26/2024, 3:54:51 AM",
 		"platform": "V5",
 		"language": "python",
