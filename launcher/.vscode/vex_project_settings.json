@@ -1,0 +1,18 @@
+{
+	"extension": {
+		"version": "0.5.0",
+		"json": 2
+	},
+	"project": {
+		"name": "Launcher",
+		"description": "To the Moon!",
+		"creationDate": "1/29/2024, 9:52:51 AM",
+		"platform": "V5",
+		"language": "python",
+		"slot": 1,
+		"sdkVersion": "V5_1_0_1_15",
+		"python": {
+			"main": "src/main.py"
+		}
+	}
+}
