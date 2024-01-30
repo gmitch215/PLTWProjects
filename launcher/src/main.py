@@ -1,5 +1,4 @@
 from vex import *
-import random
 
 brain = Brain()
 left_motor = Motor(Ports.PORT10, GearSetting.RATIO_18_1, False)
@@ -8,6 +7,7 @@ arm_motor = Motor(Ports.PORT8, GearSetting.RATIO_18_1, True)
 claw_motor = Motor(Ports.PORT3, GearSetting.RATIO_18_1, False)
 sight = Optical(Ports.PORT16)
 dist = Distance(Ports.PORT9)
+dist_back = Distance(Ports.PORT7)
 bumper_a = Bumper(brain.three_wire_port.a)
 led_d = Led(brain.three_wire_port.d)
 vision = Vision(Ports.PORT5)
@@ -31,11 +31,11 @@ def stop():
     left_motor.stop()
     right_motor.stop()
 
-def arm(percent, direction=FORWARD, velocity=35):
-    arm_motor.spin_for(direction, 700 * (percent / 100), velocity)
+def arm(percent, direction=FORWARD, velocity=35, wait=True):
+    arm_motor.spin_for(direction, 100 * (percent / 100), DEGREES, velocity, VelocityUnits.PERCENT, wait)
 
-def claw(percent, direction=FORWARD):
-    claw_motor.spin_for(direction, 270 * (percent / 100), velocity=50)
+def claw(percent, direction=FORWARD, velocity=50, wait=True):
+    claw_motor.spin_for(direction, 270 * (percent / 100), DEGREES, velocity, VelocityUnits.PERCENT, wait)
 
 def open_claw():
     claw(100)
@@ -54,16 +54,16 @@ def grip():
     backward()
     wait(500)
 
-
 def cycle():
-    arm(90, FORWARD, 100)
-    claw(30, REVERSE)
+    arm(100, FORWARD, 100, wait=False)
+    claw(30, REVERSE, wait=False)
 
     wait(1, SECONDS)
-    arm(90, REVERSE, 50)
+    claw(30, FORWARD, wait=False)
+    arm(90, REVERSE, 50, wait=False)
 
     while (dist.object_distance(INCHES) > 2):
-        forward()
+        backward()
     
     stop()
     wait(1, SECONDS)
@@ -72,6 +72,7 @@ def cycle():
     wait(2, SECONDS)
     stop()
 
-
-while (True):
-    cycle()
+# while (True):
+#     cycle()
+    
+arm_motor.spin(FORWARD, 100)
