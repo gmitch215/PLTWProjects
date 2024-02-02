@@ -4,6 +4,7 @@ brain = Brain()
 left_motor = Motor(Ports.PORT10, GearSetting.RATIO_18_1, False)
 right_motor = Motor(Ports.PORT1, GearSetting.RATIO_18_1, True)
 arm_motor = Motor(Ports.PORT8, GearSetting.RATIO_18_1, True)
+arm_motor_2 = Motor(Ports.PORT6, GearSetting.RATIO_18_1, True)
 claw_motor = Motor(Ports.PORT3, GearSetting.RATIO_18_1, False)
 sight = Optical(Ports.PORT16)
 dist = Distance(Ports.PORT9)
@@ -33,6 +34,7 @@ def stop():
 
 def arm(percent, direction=FORWARD, velocity=35, wait=True):
     arm_motor.spin_for(direction, 100 * (percent / 100), DEGREES, velocity, VelocityUnits.PERCENT, wait)
+    arm_motor_2.spin_for(direction, 100 * (percent / 100), DEGREES, velocity, VelocityUnits.PERCENT, wait)
 
 def claw(percent, direction=FORWARD, velocity=50, wait=True):
     claw_motor.spin_for(direction, 270 * (percent / 100), DEGREES, velocity, VelocityUnits.PERCENT, wait)
@@ -75,4 +77,4 @@ def cycle():
 # while (True):
 #     cycle()
     
-arm_motor.spin(FORWARD, 100)
+arm(100, FORWARD, 100, wait=False)
