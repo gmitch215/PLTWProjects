@@ -4,12 +4,12 @@ My collection of PLTW Projets that I made in Python using the Vex V5 interface d
 
 ## Projects
 
-- [ ] Roomba
+- [x] Roomba
   - A robot that moves around and avoids obstacles, opening up the grip to pick up objects and closing it to drop them off.
-- [ ] Book Reader
-  - A robot that can read a book and turn the pages.
-- [ ] Launcher
-  - A robot that can launch a ball onto a target area
+- [ ] Custom Controller
+  - Implementation of a controller using buttons and sensors
+- [ ] Gauntlet
+  - Control the robot using hand gestures in front of the camera
 - [ ] Secret Task #1
   - Don't worry about it.
 - [ ] Secret Task #2
