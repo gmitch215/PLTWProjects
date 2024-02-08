@@ -45,14 +45,11 @@ def close_claw():
 # Begin Project
 
 while (True):
-    # objects = sight.
-    # brain.screen.print(objects)
-    # brain.screen.new_line()
-    # count = len(objects)
+    count = vision.objectCount
     
-    # if (count < 2):
-    #     stop()
-    # elif (count >= 2 and count < 4):
-    #     forward()
-    # else:
-    #     backward()
+    if (count < 2):
+        stop()
+    elif (count >= 2 and count < 4):
+        forward()
+    else:
+        backward()
