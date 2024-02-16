@@ -1,0 +1,29 @@
+{
+  "configurations": [
+    {
+      "name": "PROS Project",
+      "includePath": [
+        "${workspaceFolder}/**",
+        "c:\\Users\\mitchellg2026\\Desktop\\GitHub\\PLTWProjects\\PLTWProjects\\doom-real\\include"
+      ],
+      "defines": [
+        "_DEBUG",
+        "UNICODE",
+        "_UNICODE"
+      ],
+      "compilerPath": "c:\\Users\\mitchellg2026\\AppData\\Roaming\\Code\\User\\globalStorage\\sigbots.pros\\install\\pros-toolchain-windows\\usr\\bin\\arm-none-eabi-g++",
+      "cStandard": "gnu11",
+      "cppStandard": "gnu++20",
+      "intelliSenseMode": "gcc-arm",
+      "compileCommands": "c:\\Users\\mitchellg2026\\Desktop\\GitHub\\PLTWProjects\\PLTWProjects\\doom-real\\compile_commands.json",
+      "browse": {
+        "path": [
+          "c:\\Users\\mitchellg2026\\Desktop\\GitHub\\PLTWProjects\\PLTWProjects\\doom-real"
+        ],
+        "limitSymbolsToIncludedHeaders": true,
+        "databaseFilename": ""
+      }
+    }
+  ],
+  "version": 4
+}

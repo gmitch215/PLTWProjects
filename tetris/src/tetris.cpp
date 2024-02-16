@@ -1,3 +1,12 @@
+/*----------------------------------------------------------------------------*/
+/*                                                                            */
+/*    Module:       tetris.cpp                                             */
+/*    Author:       james, mitchellg2026                                                     */
+/*    Created:      Sun Mar 24 2019                                           */
+/*    Modified:     Thu Feb 15 2024                                          */
+/*    Description:  Implementation for tetris                        */
+/*                                                                            */
+/*----------------------------------------------------------------------------*/
 #include "vex.h"
 #include "buttons.h"
 #include "tetris.h"
@@ -6,15 +15,15 @@ using namespace vex;
 
 extern vex::brain Brain;
 
-#define SEVEN_SEG_HEIGHT            SEVEN_SEG_SIZE*3
-#define SEVEN_SEG_WIDTH             SEVEN_SEG_HEIGHT*3
-#define SEVEN_SEG_CHAR_WIDTH        ((SEVEN_SEG_SIZE*4)+(SEVEN_SEG_HEIGHT*2)+SEVEN_SEG_WIDTH)
-#define SEVEN_SEG_CHAR_HEIGHT       ((SEVEN_SEG_SIZE*4)+(SEVEN_SEG_HEIGHT*3)+(SEVEN_SEG_WIDTH*2))
-#define TETRIS_SEVEN_SEG_SCORE_X    (TETRIS_FIELD_WIDTH*TETRIS_CELL_WIDTH) + TETRIS_FIELD_HEIGHT-2 + (SEVEN_SEG_CHAR_WIDTH*i)
+#define SEVEN_SEG_HEIGHT            SEVEN_SEG_SIZE * 3
+#define SEVEN_SEG_WIDTH             SEVEN_SEG_HEIGHT * 3
+#define SEVEN_SEG_CHAR_WIDTH        ((SEVEN_SEG_SIZE * 4) + (SEVEN_SEG_HEIGHT * 2) + SEVEN_SEG_WIDTH)
+#define SEVEN_SEG_CHAR_HEIGHT       ((SEVEN_SEG_SIZE * 4) + (SEVEN_SEG_HEIGHT * 3) + (SEVEN_SEG_WIDTH * 2))
+#define SCORE_SEG    (FIELD_WIDTH * CELL) + FIELD_HEIGHT - 2 + (SEVEN_SEG_CHAR_WIDTH * i)
 
 
 const uint8_t sevenSegNumbers[10] = { 0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F }; 
-const vex::color tetrisShapeColors[9] = { 
+const vex::color shapeColors[12] = { 
     vex::color(0x000000), 
     vex::color(0xFF00FF), 
     vex::color(0xFFFF00), 
@@ -23,21 +32,24 @@ const vex::color tetrisShapeColors[9] = {
     vex::color(0xFF8000), 
     vex::color(0x0000FF), 
     vex::color(0x00FFFF), 
-    vex::color(0xFFFFFF) 
+    vex::color(0xFFFFFF),
+    vex::color(0xFF00AA),
+    vex::color(0xFFAAFF),
+    vex::color(0xEEFF00)
 }; 
 const vex::color lineColor( 0x00FF00 );
 
-const int tetrisShapes[TETRIS_SHAPE_COUNT][4][2] = {
-                                                                          {{4, TETRIS_FIELD_HEIGHT  },{4, TETRIS_FIELD_HEIGHT-1},{5, TETRIS_FIELD_HEIGHT-1},{4, TETRIS_FIELD_HEIGHT-2}},
-                                                                          {{4, TETRIS_FIELD_HEIGHT-1},{5, TETRIS_FIELD_HEIGHT-1},{4, TETRIS_FIELD_HEIGHT-2},{5, TETRIS_FIELD_HEIGHT-2}},
-                                                                          {{4, TETRIS_FIELD_HEIGHT  },{5, TETRIS_FIELD_HEIGHT-1},{4, TETRIS_FIELD_HEIGHT-1},{5, TETRIS_FIELD_HEIGHT-2}},
-                                                                          {{5, TETRIS_FIELD_HEIGHT  },{5, TETRIS_FIELD_HEIGHT-1},{4, TETRIS_FIELD_HEIGHT-1},{4, TETRIS_FIELD_HEIGHT-2}},
-                                                                          {{5, TETRIS_FIELD_HEIGHT  },{5, TETRIS_FIELD_HEIGHT-1},{5, TETRIS_FIELD_HEIGHT-2},{4, TETRIS_FIELD_HEIGHT-2}},
-                                                                          {{4, TETRIS_FIELD_HEIGHT  },{4, TETRIS_FIELD_HEIGHT-1},{4, TETRIS_FIELD_HEIGHT-2},{5, TETRIS_FIELD_HEIGHT-2}},
-                                                                          {{4, TETRIS_FIELD_HEIGHT+1},{4, TETRIS_FIELD_HEIGHT  },{4, TETRIS_FIELD_HEIGHT-1},{4, TETRIS_FIELD_HEIGHT-2}}
+const int tetrisShapes[SHAPE_COUNT][4][2] = {
+                                                                          {{4, FIELD_HEIGHT  },{4, FIELD_HEIGHT-1},{5, FIELD_HEIGHT-1},{4, FIELD_HEIGHT-2}},
+                                                                          {{4, FIELD_HEIGHT-1},{5, FIELD_HEIGHT-1},{4, FIELD_HEIGHT-2},{5, FIELD_HEIGHT-2}},
+                                                                          {{4, FIELD_HEIGHT  },{5, FIELD_HEIGHT-1},{4, FIELD_HEIGHT-1},{5, FIELD_HEIGHT-2}},
+                                                                          {{5, FIELD_HEIGHT  },{5, FIELD_HEIGHT-1},{4, FIELD_HEIGHT-1},{4, FIELD_HEIGHT-2}},
+                                                                          {{5, FIELD_HEIGHT  },{5, FIELD_HEIGHT-1},{5, FIELD_HEIGHT-2},{4, FIELD_HEIGHT-2}},
+                                                                          {{4, FIELD_HEIGHT  },{4, FIELD_HEIGHT-1},{4, FIELD_HEIGHT-2},{5, FIELD_HEIGHT-2}},
+                                                                          {{4, FIELD_HEIGHT+1},{4, FIELD_HEIGHT  },{4, FIELD_HEIGHT-1},{4, FIELD_HEIGHT-2}}
                                                                         };
 
-int             tetrisField[TETRIS_FIELD_HEIGHT][TETRIS_FIELD_WIDTH];
+int             tetrisField[FIELD_HEIGHT][FIELD_WIDTH];
 unsigned int    tetrisGameSpeed                                       = 300;
 unsigned int    tetrisKeySpeed                                        = 250;
 uint32_t        tetrisPreviousGameTime                                = 0;
@@ -118,15 +130,15 @@ static void sevenSegDraw(int x, int y, uint8_t number, vex::color color) {
 static void drawShape(uint8_t color) {
   int i;
   for (i = 0; i <= 3; i++) {
-    if (tetrisCurrentShape[i][1] < TETRIS_FIELD_HEIGHT || tetrisCurrentShape[i][1] >= TETRIS_FIELD_HEIGHT+2 ) {
-      Brain.Screen.setPenColor( tetrisShapeColors[color] );
-      Brain.Screen.drawRectangle((tetrisCurrentShape[i][0]*TETRIS_CELL_WIDTH)+2, dispGetHeight()-TETRIS_CELL_HEIGHT-(tetrisCurrentShape[i][1]*TETRIS_CELL_HEIGHT)-3, TETRIS_CELL_WIDTH-2, TETRIS_CELL_HEIGHT-2, tetrisShapeColors[color]);
+    if (tetrisCurrentShape[i][1] < FIELD_HEIGHT || tetrisCurrentShape[i][1] >= FIELD_HEIGHT+2 ) {
+      Brain.Screen.setPenColor( shapeColors[color] );
+      Brain.Screen.drawRectangle((tetrisCurrentShape[i][0]*CELL)+2, dispGetHeight()-CELL-(tetrisCurrentShape[i][1]*CELL)-3, CELL-2, CELL-2, shapeColors[color]);
        if (color != 0) {
-         Brain.Screen.setPenColor( tetrisShapeColors[8] );
-         Brain.Screen.drawRectangle((tetrisCurrentShape[i][0]*TETRIS_CELL_WIDTH)+2, dispGetHeight()-TETRIS_CELL_HEIGHT-(tetrisCurrentShape[i][1]*TETRIS_CELL_HEIGHT)-3, TETRIS_CELL_WIDTH-1, TETRIS_CELL_HEIGHT-1, vex::color::transparent );
+         Brain.Screen.setPenColor( shapeColors[sizeof(shapeColors) - 1] );
+         Brain.Screen.drawRectangle((tetrisCurrentShape[i][0]*CELL)+2, dispGetHeight()-CELL-(tetrisCurrentShape[i][1]*CELL)-3, CELL-1, CELL-1, vex::color::transparent );
        } else {
-         Brain.Screen.setPenColor( tetrisShapeColors[0] );
-         Brain.Screen.drawRectangle((tetrisCurrentShape[i][0]*TETRIS_CELL_WIDTH)+2, dispGetHeight()-TETRIS_CELL_HEIGHT-(tetrisCurrentShape[i][1]*TETRIS_CELL_HEIGHT)-3, TETRIS_CELL_WIDTH-1, TETRIS_CELL_HEIGHT-1,  vex::color::transparent );
+         Brain.Screen.setPenColor( shapeColors[0] );
+         Brain.Screen.drawRectangle((tetrisCurrentShape[i][0]*CELL)+2, dispGetHeight()-CELL-(tetrisCurrentShape[i][1]*CELL)-3, CELL-1, CELL-1,  vex::color::transparent );
        }
     }
   }
@@ -147,7 +159,7 @@ static void createShape(void) {
   }
   drawShape(0);
   tetrisOldShapeNum = tetrisNextShapeNum;
-  tetrisNextShapeNum = randomInt(TETRIS_SHAPE_COUNT);
+  tetrisNextShapeNum = randomInt(SHAPE_COUNT);
   memcpy(tetrisNextShape, tetrisShapes[tetrisNextShapeNum], sizeof(tetrisNextShape)); // assign from tetrisShapes arr;
   memcpy(tetrisCurrentShape, tetrisNextShape, sizeof(tetrisCurrentShape)); // tetrisCurrentShape = tetrisNextShape;
   for (i = 0; i <= 3; i++) {
@@ -165,43 +177,43 @@ static void tellScore(uint8_t color) {
   i = 0;
   uitoa(tetrisLines, pps_str, sizeof(pps_str));
   Brain.Screen.setPenColor( black );
-  Brain.Screen.drawRectangle( TETRIS_SEVEN_SEG_SCORE_X, 198, SEVEN_SEG_CHAR_WIDTH * 8,  SEVEN_SEG_CHAR_HEIGHT + 4, black );
+  Brain.Screen.drawRectangle( SCORE_SEG, 198, SEVEN_SEG_CHAR_WIDTH * 8,  SEVEN_SEG_CHAR_HEIGHT + 4, black );
   for (i = 0; i < strlen(pps_str); i++) {
-    if (pps_str[i] == '0') sevenSegDraw(TETRIS_SEVEN_SEG_SCORE_X, 200, sevenSegNumbers[0], lineColor );
-    if (pps_str[i] == '1') sevenSegDraw(TETRIS_SEVEN_SEG_SCORE_X, 200, sevenSegNumbers[1], lineColor );
-    if (pps_str[i] == '2') sevenSegDraw(TETRIS_SEVEN_SEG_SCORE_X, 200, sevenSegNumbers[2], lineColor );
-    if (pps_str[i] == '3') sevenSegDraw(TETRIS_SEVEN_SEG_SCORE_X, 200, sevenSegNumbers[3], lineColor );
-    if (pps_str[i] == '4') sevenSegDraw(TETRIS_SEVEN_SEG_SCORE_X, 200, sevenSegNumbers[4], lineColor );
-    if (pps_str[i] == '5') sevenSegDraw(TETRIS_SEVEN_SEG_SCORE_X, 200, sevenSegNumbers[5], lineColor );
-    if (pps_str[i] == '6') sevenSegDraw(TETRIS_SEVEN_SEG_SCORE_X, 200, sevenSegNumbers[6], lineColor );
-    if (pps_str[i] == '7') sevenSegDraw(TETRIS_SEVEN_SEG_SCORE_X, 200, sevenSegNumbers[7], lineColor );
-    if (pps_str[i] == '8') sevenSegDraw(TETRIS_SEVEN_SEG_SCORE_X, 200, sevenSegNumbers[8], lineColor );
-    if (pps_str[i] == '9') sevenSegDraw(TETRIS_SEVEN_SEG_SCORE_X, 200, sevenSegNumbers[9], lineColor );
+    if (pps_str[i] == '0') sevenSegDraw(SCORE_SEG, 200, sevenSegNumbers[0], lineColor );
+    if (pps_str[i] == '1') sevenSegDraw(SCORE_SEG, 200, sevenSegNumbers[1], lineColor );
+    if (pps_str[i] == '2') sevenSegDraw(SCORE_SEG, 200, sevenSegNumbers[2], lineColor );
+    if (pps_str[i] == '3') sevenSegDraw(SCORE_SEG, 200, sevenSegNumbers[3], lineColor );
+    if (pps_str[i] == '4') sevenSegDraw(SCORE_SEG, 200, sevenSegNumbers[4], lineColor );
+    if (pps_str[i] == '5') sevenSegDraw(SCORE_SEG, 200, sevenSegNumbers[5], lineColor );
+    if (pps_str[i] == '6') sevenSegDraw(SCORE_SEG, 200, sevenSegNumbers[6], lineColor );
+    if (pps_str[i] == '7') sevenSegDraw(SCORE_SEG, 200, sevenSegNumbers[7], lineColor );
+    if (pps_str[i] == '8') sevenSegDraw(SCORE_SEG, 200, sevenSegNumbers[8], lineColor );
+    if (pps_str[i] == '9') sevenSegDraw(SCORE_SEG, 200, sevenSegNumbers[9], lineColor );
   }
 
   i = 0;
   uitoa(tetrisScore, pps_str, sizeof(pps_str));
   Brain.Screen.setPenColor( black );
-  Brain.Screen.drawRectangle( TETRIS_SEVEN_SEG_SCORE_X, 138, SEVEN_SEG_CHAR_WIDTH * 8,  SEVEN_SEG_CHAR_HEIGHT + 4, black );
+  Brain.Screen.drawRectangle( SCORE_SEG, 138, SEVEN_SEG_CHAR_WIDTH * 8,  SEVEN_SEG_CHAR_HEIGHT + 4, black );
   for (i = 0; i < strlen(pps_str); i++) {
-    if (pps_str[i] == '0') sevenSegDraw(TETRIS_SEVEN_SEG_SCORE_X, 140, sevenSegNumbers[0], lineColor );
-    if (pps_str[i] == '1') sevenSegDraw(TETRIS_SEVEN_SEG_SCORE_X, 140, sevenSegNumbers[1], lineColor );
-    if (pps_str[i] == '2') sevenSegDraw(TETRIS_SEVEN_SEG_SCORE_X, 140, sevenSegNumbers[2], lineColor );
-    if (pps_str[i] == '3') sevenSegDraw(TETRIS_SEVEN_SEG_SCORE_X, 140, sevenSegNumbers[3], lineColor );
-    if (pps_str[i] == '4') sevenSegDraw(TETRIS_SEVEN_SEG_SCORE_X, 140, sevenSegNumbers[4], lineColor );
-    if (pps_str[i] == '5') sevenSegDraw(TETRIS_SEVEN_SEG_SCORE_X, 140, sevenSegNumbers[5], lineColor );
-    if (pps_str[i] == '6') sevenSegDraw(TETRIS_SEVEN_SEG_SCORE_X, 140, sevenSegNumbers[6], lineColor );
-    if (pps_str[i] == '7') sevenSegDraw(TETRIS_SEVEN_SEG_SCORE_X, 140, sevenSegNumbers[7], lineColor );
-    if (pps_str[i] == '8') sevenSegDraw(TETRIS_SEVEN_SEG_SCORE_X, 140, sevenSegNumbers[8], lineColor );
-    if (pps_str[i] == '9') sevenSegDraw(TETRIS_SEVEN_SEG_SCORE_X, 140, sevenSegNumbers[9], lineColor );
+    if (pps_str[i] == '0') sevenSegDraw(SCORE_SEG, 140, sevenSegNumbers[0], lineColor );
+    if (pps_str[i] == '1') sevenSegDraw(SCORE_SEG, 140, sevenSegNumbers[1], lineColor );
+    if (pps_str[i] == '2') sevenSegDraw(SCORE_SEG, 140, sevenSegNumbers[2], lineColor );
+    if (pps_str[i] == '3') sevenSegDraw(SCORE_SEG, 140, sevenSegNumbers[3], lineColor );
+    if (pps_str[i] == '4') sevenSegDraw(SCORE_SEG, 140, sevenSegNumbers[4], lineColor );
+    if (pps_str[i] == '5') sevenSegDraw(SCORE_SEG, 140, sevenSegNumbers[5], lineColor );
+    if (pps_str[i] == '6') sevenSegDraw(SCORE_SEG, 140, sevenSegNumbers[6], lineColor );
+    if (pps_str[i] == '7') sevenSegDraw(SCORE_SEG, 140, sevenSegNumbers[7], lineColor );
+    if (pps_str[i] == '8') sevenSegDraw(SCORE_SEG, 140, sevenSegNumbers[8], lineColor );
+    if (pps_str[i] == '9') sevenSegDraw(SCORE_SEG, 140, sevenSegNumbers[9], lineColor );
   }
 }
 
 static void initField(void) {
   int i,j;
   tellScore(0); // clear score
-  for (i = 0; i < TETRIS_FIELD_HEIGHT; i++) {
-    for (j = 0; j < TETRIS_FIELD_WIDTH; j++) {
+  for (i = 0; i < FIELD_HEIGHT; i++) {
+    for (j = 0; j < FIELD_WIDTH; j++) {
       tetrisField[i][j] = 0;
     }
   }
@@ -213,22 +225,22 @@ static void initField(void) {
 }
 
 void drawCell(int x, int y, uint8_t color) {
-  Brain.Screen.setPenColor( tetrisShapeColors[color] );
-  Brain.Screen.drawRectangle((x*TETRIS_CELL_WIDTH)+2, dispGetHeight()-TETRIS_CELL_HEIGHT-(y*TETRIS_CELL_HEIGHT)-3, TETRIS_CELL_WIDTH-2, TETRIS_CELL_HEIGHT-2, tetrisShapeColors[color]);
+  Brain.Screen.setPenColor( shapeColors[color] );
+  Brain.Screen.drawRectangle((x*CELL)+2, dispGetHeight()-CELL-(y*CELL)-3, CELL-2, CELL-2, shapeColors[color]);
   if (color != 0) {
-    Brain.Screen.setPenColor( tetrisShapeColors[8] );
-    Brain.Screen.drawRectangle((x*TETRIS_CELL_WIDTH)+2, dispGetHeight()-TETRIS_CELL_HEIGHT-(y*TETRIS_CELL_HEIGHT)-3, TETRIS_CELL_WIDTH-1, TETRIS_CELL_HEIGHT-1, vex::color::transparent );
+    Brain.Screen.setPenColor( shapeColors[sizeof(shapeColors) - 1] );
+    Brain.Screen.drawRectangle((x*CELL)+2, dispGetHeight()-CELL-(y*CELL)-3, CELL-1, CELL-1, vex::color::transparent );
   } else {
-    Brain.Screen.setPenColor( tetrisShapeColors[0] );
-    Brain.Screen.drawRectangle((x*TETRIS_CELL_WIDTH)+2, dispGetHeight()-TETRIS_CELL_HEIGHT-(y*TETRIS_CELL_HEIGHT)-3, TETRIS_CELL_WIDTH-1, TETRIS_CELL_HEIGHT-1, vex::color::transparent );
+    Brain.Screen.setPenColor( shapeColors[0] );
+    Brain.Screen.drawRectangle((x*CELL)+2, dispGetHeight()-CELL-(y*CELL)-3, CELL-1, CELL-1, vex::color::transparent );
   }
 }
 
 static void printText(uint8_t color) {
   Brain.Screen.setFont( mono20 );
-  Brain.Screen.printAt(( TETRIS_FIELD_WIDTH*TETRIS_CELL_WIDTH)+TETRIS_CELL_WIDTH, dispGetHeight() - (TETRIS_FIELD_HEIGHT*TETRIS_CELL_HEIGHT) + 10, "Next" );
-  Brain.Screen.printAt(( TETRIS_FIELD_WIDTH*TETRIS_CELL_WIDTH)+TETRIS_CELL_WIDTH, dispGetHeight() - 110, "Score" );
-  Brain.Screen.printAt(( TETRIS_FIELD_WIDTH*TETRIS_CELL_WIDTH)+TETRIS_CELL_WIDTH, dispGetHeight() - 50, "Lines" );
+  Brain.Screen.printAt(( FIELD_WIDTH*CELL)+CELL, dispGetHeight() - (FIELD_HEIGHT*CELL) + 10, "Next" );
+  Brain.Screen.printAt(( FIELD_WIDTH*CELL)+CELL, dispGetHeight() - 110, "Score" );
+  Brain.Screen.printAt(( FIELD_WIDTH*CELL)+CELL, dispGetHeight() - 50, "Lines" );
 }
 
 static void printGameOver(void) {
@@ -238,11 +250,11 @@ static void printGameOver(void) {
   
   if (tetrisGameOver)  {
     Brain.Screen.setPenColor( red );
-    Brain.Screen.printAt( ((TETRIS_FIELD_WIDTH*TETRIS_CELL_WIDTH)/2)-Brain.Screen.getStringWidth(str)/2, dispGetHeight()-(TETRIS_FIELD_HEIGHT*TETRIS_CELL_HEIGHT)/2, str );
+    Brain.Screen.printAt( ((FIELD_WIDTH*CELL)/2)-Brain.Screen.getStringWidth(str)/2, dispGetHeight()-(FIELD_HEIGHT*CELL)/2, str );
   }
   else {
     Brain.Screen.setPenColor( black );
-    Brain.Screen.drawRectangle(((TETRIS_FIELD_WIDTH*TETRIS_CELL_WIDTH)/2)-Brain.Screen.getStringWidth(str)/2, dispGetHeight()-(TETRIS_FIELD_HEIGHT*TETRIS_CELL_HEIGHT)/2, Brain.Screen.getStringWidth(str)+4,  Brain.Screen.getStringWidth("A")+2, black );
+    Brain.Screen.drawRectangle(((FIELD_WIDTH*CELL)/2)-Brain.Screen.getStringWidth(str)/2, dispGetHeight()-(FIELD_HEIGHT*CELL)/2, Brain.Screen.getStringWidth(str)+4,  Brain.Screen.getStringWidth("A")+2, black );
   }
 }
 
@@ -257,8 +269,8 @@ static bool stay(bool down) {
     }
   }
   for (k = 0; k <= 3; k++) {
-    if ((tetrisCurrentShape[k][0] < 0) || (tetrisCurrentShape[k][0] >= TETRIS_FIELD_WIDTH)) return true;
-    if (tetrisCurrentShape[k][1] < TETRIS_FIELD_HEIGHT)
+    if ((tetrisCurrentShape[k][0] < 0) || (tetrisCurrentShape[k][0] >= FIELD_WIDTH)) return true;
+    if (tetrisCurrentShape[k][1] < FIELD_HEIGHT)
       if (tetrisField[tetrisCurrentShape[k][1]-sk][tetrisCurrentShape[k][0]] != 0) return true;
   }
   return stay;
@@ -269,26 +281,26 @@ static void clearCompleteLines(void) {
   uint8_t reiz = 0;
   int l,k,j;
   l = 0;
-  while (l < TETRIS_FIELD_HEIGHT) {
+  while (l < FIELD_HEIGHT) {
     t = true;
-    for (j = 0; j < TETRIS_FIELD_WIDTH; j++)
+    for (j = 0; j < FIELD_WIDTH; j++)
       if (tetrisField[l][j] == 0) t = false;
     if (t) {
       for (j = 4; j >= 0; j--) { // cheap & dirty line removal animation :D
         drawCell(j,l, 0);
-        drawCell(TETRIS_FIELD_WIDTH-1-j,l, 0);
+        drawCell(FIELD_WIDTH-1-j,l, 0);
         this_thread::sleep_for(40);
       }
       reiz++;
-      for (k = 0; k < TETRIS_FIELD_WIDTH; k++) {
-        for (j = l; j < TETRIS_FIELD_HEIGHT-1; j++) {
+      for (k = 0; k < FIELD_WIDTH; k++) {
+        for (j = l; j < FIELD_HEIGHT-1; j++) {
           tetrisField[j][k] = tetrisField[j+1][k];
           drawCell(k,j, tetrisField[j][k]);
         }
       }
-      for (j = 0; j < TETRIS_FIELD_WIDTH; j++) {
-        tetrisField[TETRIS_FIELD_HEIGHT-1][j] = 0;
-        drawCell(j,TETRIS_FIELD_HEIGHT-1,0);
+      for (j = 0; j < FIELD_WIDTH; j++) {
+        tetrisField[FIELD_HEIGHT-1][j] = 0;
+        drawCell(j,FIELD_HEIGHT-1,0);
       }
     } else {
       l++;
@@ -311,7 +323,7 @@ static void goDown(void) {
     drawShape(tetrisOldShapeNum+1);
   } else {
     for (i = 0; i <= 3; i++) {
-      if (tetrisCurrentShape[i][1] >=TETRIS_FIELD_HEIGHT) {
+      if (tetrisCurrentShape[i][1] >=FIELD_HEIGHT) {
         tetrisGameOver = true;
         return;
       } else {
@@ -330,15 +342,15 @@ static void goDown(void) {
 
 static void clearField(void) {
   int j, k;
-  for (k = TETRIS_FIELD_HEIGHT-1; k >= 0; k--) {
-    for (j = 0; j <= TETRIS_FIELD_WIDTH-1; j++) {
-      drawCell(j,TETRIS_FIELD_HEIGHT-1-k, randomInt(8)+1);
+  for (k = FIELD_HEIGHT-1; k >= 0; k--) {
+    for (j = 0; j <= FIELD_WIDTH-1; j++) {
+      drawCell(j,FIELD_HEIGHT-1-k, randomInt(8)+1);
       this_thread::sleep_for(10);
     }
   }
-  for (k = 0; k <= TETRIS_FIELD_HEIGHT-1; k++) {
-    for (j = 0; j <= TETRIS_FIELD_WIDTH-1; j++) {
-      drawCell(j,TETRIS_FIELD_HEIGHT-1-k, tetrisShapeColors[0]);
+  for (k = 0; k <= FIELD_HEIGHT-1; k++) {
+    for (j = 0; j <= FIELD_WIDTH-1; j++) {
+      drawCell(j,FIELD_HEIGHT-1-k, shapeColors[0]);
       this_thread::sleep_for(10);
     }
   }
@@ -370,8 +382,8 @@ static bool checkSides(bool left) {
   int sk,k;
   if (left) sk = 1; else sk = -1;
   for (k = 0; k <= 3; k++) {
-    if ((tetrisCurrentShape[k][0]+sk < 0) || (tetrisCurrentShape[k][0]+sk >= TETRIS_FIELD_WIDTH)) return true;
-    if (tetrisCurrentShape[k][1] < TETRIS_FIELD_HEIGHT)
+    if ((tetrisCurrentShape[k][0]+sk < 0) || (tetrisCurrentShape[k][0]+sk >= FIELD_WIDTH)) return true;
+    if (tetrisCurrentShape[k][1] < FIELD_HEIGHT)
       if (tetrisField[tetrisCurrentShape[k][1]][tetrisCurrentShape[k][0]+sk] != 0) return true;
   }
   return false;
@@ -386,7 +398,7 @@ static void goRight(void) {
     }
     drawShape(tetrisOldShapeNum+1);
   }
-}`
+}
 
 static void goLeft(void) {
   int i;
@@ -522,7 +534,7 @@ void tetrisStart(void) {
   // Draw the board
   Brain.Screen.clearScreen( black );
   Brain.Screen.setPenColor( white );
-  Brain.Screen.drawRectangle( 0, dispGetHeight()-(TETRIS_FIELD_HEIGHT*TETRIS_CELL_HEIGHT)-5, (TETRIS_FIELD_WIDTH*TETRIS_CELL_WIDTH)+3, (TETRIS_FIELD_HEIGHT*TETRIS_CELL_HEIGHT)+3, vex::color::transparent );
+  Brain.Screen.drawRectangle( 0, dispGetHeight()-(FIELD_HEIGHT*CELL)-5, (FIELD_WIDTH*CELL)+3, (FIELD_HEIGHT*CELL)+3, vex::color::transparent );
   printText(8);
 
   // Away we go
@@ -549,5 +561,5 @@ void tetrisStart(void) {
 
 void tetrisInit(void) {
   initRng();
-  tetrisNextShapeNum = randomInt(TETRIS_SHAPE_COUNT);
+  tetrisNextShapeNum = randomInt(SHAPE_COUNT);
 }

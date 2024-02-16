@@ -4,7 +4,7 @@
 using namespace vex;
 
 #define  SX  (5)
-#define  SY  (TETRIS_FIELD_HEIGHT-5)
+#define  SY  (FIELD_HEIGHT - 5)
 
 static int title[][2] = {
   // T
