@@ -17,3 +17,9 @@ My collection of PLTW Projets that I made in Python and C/C++ using the Vex V5 i
   - Bootleg Super Mario Bros on a Robot
 - [x] Doom
   - Run Doom on the Robot
+
+### Q3 Project
+
+*Pop-a-Shot Machine*
+
+Makeshift Pop-A-Shot Machine that uses a Vex V5 Robot to shoot balls into a hoop.
