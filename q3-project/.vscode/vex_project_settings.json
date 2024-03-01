@@ -4,9 +4,9 @@
 		"json": 2
 	},
 	"project": {
-		"name": "Tetris",
-		"description": "Dun, dun dun dun...",
-		"creationDate": "2/13/2024, 10:25:06 AM",
+		"name": "Pop-A-Shot",
+		"description": "The Pop-A-Shot game for the VEX V5 Robot",
+		"creationDate": "3/1/2024, 9:44:11 AM",
 		"platform": "V5",
 		"language": "cpp",
 		"slot": 2,
