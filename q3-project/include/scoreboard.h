@@ -1,4 +1,5 @@
-#include "vex.h"
+#ifndef Q3_SCOREBOARD_H
+#define Q3_SCOREBOARD_H
 
 namespace Scoreboard {
 
@@ -6,8 +7,6 @@ namespace Scoreboard {
 
     void displayHighScore(int highScore);
 
-    void incrementDisplay();
-
-    void incrementDisplay(int amount);
-
 }
+
+#endif
