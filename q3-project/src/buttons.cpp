@@ -1,10 +1,10 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
-/*    Module:       tetris.cpp                                             */
-/*    Author:       james, mitchellg2026                                                     */
+/*    Module:       buttons.cpp                                               */
+/*    Author:       james, mitchellg2026                                      */
 /*    Created:      Sun Mar 24 2019                                           */
-/*    Modified:     Thu Mar 12 2024                                        */
-/*    Description:  Implementation for buttons class                        */
+/*    Modified:     Thu Mar 12 2024                                           */
+/*    Description:  Implementation for buttons class                          */
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 #include "vex.h"
