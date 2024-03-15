@@ -17,11 +17,6 @@ extern vex::brain Brain;
 void Game::setScore(int score) {
     Game::score = score;
     Scoreboard::displayScore(score);
-
-    if (score > Game::highScore) {
-        Game::highScore = score;
-        Scoreboard::displayHighScore(highScore);
-    }
 }
 
 void Game::incrementScore() {
@@ -31,5 +26,3 @@ void Game::incrementScore() {
 void Game::incrementScore(int amount) {
     setScore(Game::score + amount);
 }
-
-// Internal
