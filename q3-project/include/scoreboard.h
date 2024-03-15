@@ -5,7 +5,7 @@ namespace Scoreboard {
 
     void displayScore(int score);
 
-    void displayHighScore(int highScore);
+    void numbers(int hundreds, int tens, int ones);
 
 }
 

@@ -1,8 +1,8 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
-/*    Module:       scoreboard.cpp                                                  */
+/*    Module:       scoreboard.cpp                                            */
 /*    Author:       mitchellg2026                                             */
-/*    Created:      Mon Mar 11 2024                                            */
+/*    Created:      Mon Mar 11 2024                                           */
 /*    Description:  Implementation for Pop-A-Shot Game, Scoreboard            */
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
@@ -41,7 +41,17 @@ std::vector<std::vector<int>> numberMap(int n) {
     return {};
 }
 
-void numbers(int hundreds, int tens, int ones) {
+// Implementation
+
+void Scoreboard::displayScore(int score) {
+    int h = score / 100;
+    int t = (score - h * 100) / 10;
+    int o = score - h * 100 - t * 10;
+
+    numbers(h, t, o);
+}
+
+void Scoreboard::numbers(int hundreds, int tens, int ones) {
     Brain.Screen.clearScreen();
 
     std::vector<std::vector<int>> hundredsMap = numberMap(hundreds);
@@ -62,19 +72,4 @@ void numbers(int hundreds, int tens, int ones) {
         std::vector<int> current = onesMap[i];
         Brain.Screen.drawRectangle(current[0] + Internal::ONES_SHIFT, current[1], current[2], current[3], Internal::SCOREBOARD_COLOR);
     }
-}
-
-// Implementation
-
-void Scoreboard::displayScore(int score) {
-    int h = score / 100;
-    int t = (score - h * 100) / 10;
-    int o = score - h * 100 - t * 10;
-
-    numbers(h, t, o);
-}
-
-void Scoreboard::displayHighScore(int score) {
-    Brain.Screen.clearLine(1, vex::color::black);
-    Brain.Screen.printAt(10, 10, "High Score: %d", score);
 }
