@@ -12,20 +12,21 @@
 #include "buttons.h"
 
 using namespace vex;
-using namespace Internal;
+using namespace Scoreboard;
 using namespace Game;
 
 vex::brain      Brain;
-vex::motor      Vertical       = vex::motor( vex::PORT2 );
-vex::motor      Horizontal     = vex::motor( vex::PORT3 );
 vex::distance   Distance       = vex::distance( vex::PORT1 );
+vex::button_ui  ui;
 
 int main() {
-    vex::button_ui ui;
     ui.clear();
 
     auto changeDifficulty = [](int i, bool state, int id) -> bool {
-        difficulty = id;
+        ui.removeAll();
+
+        setDifficulty(i);
+        loadGame(Distance);
         return true;
     };
 
