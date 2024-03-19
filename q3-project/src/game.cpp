@@ -97,5 +97,5 @@ void Game::loadGame(std::vector<vex::distance> Distances) {
 
     // End Game
 
-    Scoreboard::end(score);
+    Scoreboard::end(Game::score);
 }
