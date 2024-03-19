@@ -17,6 +17,7 @@ using namespace Game;
 
 vex::brain      Brain;
 vex::distance   Distance       = vex::distance( vex::PORT1 );
+vex::distance   Distance2      = vex::distance( vex::PORT2 );
 vex::button_ui  ui;
 
 int main() {
@@ -26,7 +27,7 @@ int main() {
         ui.removeAll();
 
         setDifficulty(i);
-        loadGame(Distance);
+        loadGame({Distance, Distance2});
         return true;
     };
 

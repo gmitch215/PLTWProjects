@@ -14,6 +14,8 @@ extern vex::brain Brain;
 
 namespace Scoreboard {
     const vex::color SCOREBOARD_COLOR                         = vex::color(0xFFFFFF);
+    const vex::color END_SCOREBOARD_COLOR                     = vex::color(0xFFD700);
+
     const int NUMBER_DIVIDER                                  = 50;
     const int NUMBER_WIDTH                                    = 80;
     const int NUMBER_HEIGHT                                   = 100;
@@ -137,10 +139,10 @@ void Scoreboard::displayScore(int score) {
     int t = (score - h * 100) / 10;
     int o = score - h * 100 - t * 10;
 
-    numbers(h, t, o);
+    numbers(h, t, o, Scoreboard::SCOREBOARD_COLOR);
 }
 
-void Scoreboard::numbers(int hundreds, int tens, int ones) {
+void Scoreboard::numbers(int hundreds, int tens, int ones, vex::color color) {
     Brain.Screen.clearScreen();
 
     std::vector<std::vector<int>> hundredsMap = numberMap(hundreds);
@@ -149,16 +151,24 @@ void Scoreboard::numbers(int hundreds, int tens, int ones) {
 
     for (int i = 0; i < hundredsMap.size(); i++) {
         std::vector<int> current = hundredsMap[i];
-        Brain.Screen.drawRectangle(current[0], current[1], current[2], current[3], Scoreboard::SCOREBOARD_COLOR);
+        Brain.Screen.drawRectangle(current[0], current[1], current[2], current[3], color);
     }
 
     for (int i = 0; i < tensMap.size(); i++) {
         std::vector<int> current = tensMap[i];
-        Brain.Screen.drawRectangle(current[0] + Scoreboard::TENS_SHIFT, current[1], current[2], current[3], Scoreboard::SCOREBOARD_COLOR);
+        Brain.Screen.drawRectangle(current[0] + Scoreboard::TENS_SHIFT, current[1], current[2], current[3], color);
     }
 
     for (int i = 0; i < onesMap.size(); i++) {
         std::vector<int> current = onesMap[i];
-        Brain.Screen.drawRectangle(current[0] + Scoreboard::ONES_SHIFT, current[1], current[2], current[3], Scoreboard::SCOREBOARD_COLOR);
+        Brain.Screen.drawRectangle(current[0] + Scoreboard::ONES_SHIFT, current[1], current[2], current[3], color);
     }
+}
+
+void Scoreboard::end(int score) {
+    int h = score / 100;
+    int t = (score - h * 100) / 10;
+    int o = score - h * 100 - t * 10;
+
+    numbers(h, t, o, Scoreboard::END_SCOREBOARD_COLOR);
 }

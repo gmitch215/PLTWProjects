@@ -21,7 +21,7 @@ namespace Game {
 
     // Game
 
-    void loadGame(vex::distance Distance);
+    void loadGame(std::vector<vex::distance> Distances);
 
     void setTime(int time);
 };

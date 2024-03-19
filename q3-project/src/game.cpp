@@ -14,6 +14,8 @@ extern vex::brain Brain;
 
 namespace Game {
     // Time, Score Multiplier
+    const int TIME_DELAY                   = 10;
+
     const std::vector<int> EASY            = {60, 1};
     const std::vector<int> MEDIUM          = {45, 2};
     const std::vector<int> HARD            = {30, 3};
@@ -62,15 +64,15 @@ void Game::incrementScore(int amount) {
 }
 
 void Game::setTime(int time) {
-    double t = time / 10;
-    Brain.Screen.printAt(10, 220, "Time: %d", t);
+    double t = time / TIME_DELAY;
+    Brain.Screen.printAt(10, 220, "Time: %2.3f", t);
 }
 
-void Game::loadGame(vex::distance Distance) {
+void Game::loadGame(std::vector<vex::distance> Distances) {
     Brain.Screen.clearScreen();
 
     std::vector<int> diff = Game::getDifficultyValues();
-    int time = diff[0] * 10;
+    int time = diff[0] * TIME_DELAY;
     int score = diff[1];
 
     Game::setScore(0);
@@ -83,11 +85,17 @@ void Game::loadGame(vex::distance Distance) {
         if (time == 0)
             break;
 
-        if (Distance.objectDistance(vex::inches) < 4) {
-            Game::incrementScore(score);
-            Game::setTime(i);
-        }
+        for (vex::distance &Distance : Distances)
+            if (Distance.objectDistance(vex::inches) < 5) {
+                Game::incrementScore(score);
+                Game::setTime(i);
+            }
+        
 
-        vex::wait(100, vex::msec);
+        vex::wait(1000 / TIME_DELAY, vex::msec);
     }
+
+    // End Game
+
+    Scoreboard::end(score);
 }
