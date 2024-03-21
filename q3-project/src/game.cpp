@@ -68,7 +68,7 @@ void Game::setTime(int time) {
     Brain.Screen.printAt(10, 220, "Time: %2.3f", t);
 }
 
-void Game::loadGame(std::vector<vex::distance> Distances) {
+void Game::loadGame(std::vector<vex::distance> Sides, vex::distance Back) {
     Brain.Screen.clearScreen();
 
     std::vector<int> diff = Game::getDifficultyValues();
@@ -85,12 +85,16 @@ void Game::loadGame(std::vector<vex::distance> Distances) {
         if (time == 0)
             break;
 
-        for (vex::distance &Distance : Distances)
-            if (Distance.objectDistance(vex::inches) < 5) {
+        for (vex::distance &Distance : Sides)
+            if (Distance.objectDistance(vex::inches) < 3) {
                 Game::incrementScore(score);
                 Game::setTime(i);
             }
         
+        if (Back.objectDistance(vex::inches) < 8) {
+            Game::incrementScore(score);
+            Game::setTime(i);
+        }
 
         vex::wait(1000 / TIME_DELAY, vex::msec);
     }

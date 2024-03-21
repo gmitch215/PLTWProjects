@@ -8,6 +8,7 @@
 /*----------------------------------------------------------------------------*/
 #include "vex.h"
 #include "game.h"
+#include "game.h"
 #include "scoreboard.h"
 #include "buttons.h"
 
@@ -18,6 +19,7 @@ using namespace Game;
 vex::brain      Brain;
 vex::distance   Distance       = vex::distance( vex::PORT1 );
 vex::distance   Distance2      = vex::distance( vex::PORT2 );
+vex::distance   Distance3      = vex::distance( vex::PORT3 );
 vex::button_ui  ui;
 
 int main() {
@@ -27,7 +29,7 @@ int main() {
         ui.removeAll();
 
         setDifficulty(i);
-        loadGame({Distance, Distance2});
+        loadGame({Distance, Distance2}, Distance3);
         return true;
     };
 
