@@ -7,6 +7,10 @@
 /*    Description:  Implementation for buttons class                          */
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
+
+// This is the internal implementation of the buttons class.
+// I did not make the most of this, so no documentation is provided.
+
 #include "vex.h"
 #include "buttons.h"
 

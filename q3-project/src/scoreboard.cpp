@@ -13,14 +13,14 @@
 extern vex::brain Brain;
 
 namespace Scoreboard {
-    const vex::color SCOREBOARD_COLOR                         = vex::color(0xFFFFFF);
-    const vex::color END_SCOREBOARD_COLOR                     = vex::color(0xFFD700);
+    const vex::color SCOREBOARD_COLOR                         = vex::color(0xFFFFFF); // White
+    const vex::color END_SCOREBOARD_COLOR                     = vex::color(0xFFD700); // Gold
 
-    const int NUMBER_DIVIDER                                  = 50;
-    const int NUMBER_WIDTH                                    = 80;
-    const int NUMBER_HEIGHT                                   = 100;
-    const int BIG_PIXEL                                       = 10;
-    const int NUMBER_DIVIDER_EXTRA                            = NUMBER_DIVIDER + BIG_PIXEL;
+    const int NUMBER_DIVIDER                                  = 50; // The distance between each number in pixels
+    const int NUMBER_WIDTH                                    = 80; // The width of each number in pixels
+    const int NUMBER_HEIGHT                                   = 100; // The height of each number in pixels
+    const int BIG_PIXEL                                       = 10; // The square size of a "big pixel"
+    const int NUMBER_DIVIDER_EXTRA                            = NUMBER_DIVIDER + BIG_PIXEL; // The distance between each number in pixels, plus the size of a "big pixel"
     
     // <X, Y, Width, Height>
     const std::vector<std::vector<int>> ZERO                  = {
@@ -105,6 +105,12 @@ namespace Scoreboard {
 
 // Internal
 
+/**
+ * @brief Returns a 2D Array representing the pixel map of a number
+ * Gets the pixel map of a number from 0-9.
+ * @param n Integer between 0 and 9
+ * @return std::vector<std::vector<int>> 2D Array representing the pixel map of a number 
+ */
 std::vector<std::vector<int>> numberMap(int n) {
     switch (n) {
         case 0: 
@@ -134,6 +140,11 @@ std::vector<std::vector<int>> numberMap(int n) {
 
 // Implementation
 
+/**
+ * @brief Displays the score on the screen.
+ * Displays an integer score on the Vex V5 Screen using the default scoreboard color.
+ * @param score The score to display
+ */
 void Scoreboard::displayScore(int score) {
     int h = score / 100;
     int t = (score - h * 100) / 10;
@@ -142,15 +153,26 @@ void Scoreboard::displayScore(int score) {
     numbers(h, t, o, Scoreboard::SCOREBOARD_COLOR);
 }
 
+/**
+ * @brief Internal Scoreboard Display Function
+ * Displays the score on the screen.
+ * @param hundreds The number to display in the hundreds place
+ * @param tens The number to display in the tens place
+ * @param ones The number to display in the ones place
+ * @param color The color to display the numbers
+ */
 void Scoreboard::numbers(int hundreds, int tens, int ones, vex::color color) {
     Brain.Screen.clearScreen();
 
-    std::vector<std::vector<int>> hundredsMap = numberMap(hundreds);
-    std::vector<std::vector<int>> tensMap = numberMap(tens);
-    std::vector<std::vector<int>> onesMap = numberMap(ones);
+    std::vector<std::vector<int>> hundredsMap = numberMap(hundreds); // Pixel Map for Hundreds
+    std::vector<std::vector<int>> tensMap = numberMap(tens); // Pixel Map for Tens
+    std::vector<std::vector<int>> onesMap = numberMap(ones); // Pixel Map for Ones
 
+    // Draws the numbers on the screen
     for (int i = 0; i < hundredsMap.size(); i++) {
         std::vector<int> current = hundredsMap[i];
+
+        // <X, Y, Width, Height>, Color
         Brain.Screen.drawRectangle(current[0], current[1], current[2], current[3], color);
     }
 
@@ -164,7 +186,11 @@ void Scoreboard::numbers(int hundreds, int tens, int ones, vex::color color) {
         Brain.Screen.drawRectangle(current[0] + Scoreboard::ONES_SHIFT, current[1], current[2], current[3], color);
     }
 }
-
+/**
+ * @brief Ends the game.
+ * Ends the game on the scoreboard side, displaying the final score in the end scoreboard color.
+ * @param score The final score to display
+ */
 void Scoreboard::end(int score) {
     int h = score / 100;
     int t = (score - h * 100) / 10;
